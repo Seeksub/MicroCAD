@@ -100,5 +100,4 @@ class MicroCADApp:
 if __name__ == "__main__":
     root = Tk()
     app = MicroCADApp(root)
-    object = Object()
     root.mainloop()

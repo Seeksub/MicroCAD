@@ -1,9 +1,8 @@
 # MicroCAD
 ##Simple CAD 2D application
-
-Application in development.
--
+##Application in development.
 ####To setup enviroment:
+
 * clone this project:
 ```shell script 
 git clone <project-link>

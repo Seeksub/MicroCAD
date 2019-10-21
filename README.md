@@ -1,7 +1,8 @@
 # MicroCAD
-##Simple CAD 2D application
+##Simple CAD 2D application.
 ##Application in development.
-####To setup enviroment:
+
+###To setup enviroment:
 
 * clone this project:
 ```shell script 

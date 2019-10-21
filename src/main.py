@@ -1,11 +1,12 @@
 from tkinter import *
-from .geometry_generator import *
+from geometry_generator import *
 # from .geometrical_solver import *
 
 
 class MicroCADApp:
 #initialize
     def __init__(self, root):
+
         work_area = Canvas(root, width=1000, height=700)
         main_menu = Menu(root)
         root.config(menu=main_menu)
@@ -39,8 +40,9 @@ class MicroCADApp:
     left_button_pressed = 0
 
     x_pos, y_pos = None, None
-    x1, y1, x2, y2  = None, None, None, None
-
+    x1, y1, x2, y2 = None, None, None, None
+    points = Point()
+    lines = Line()
 #mouse events
     #catch up
     def left_button_up(self, event = None):
@@ -76,26 +78,32 @@ class MicroCADApp:
     #set select as tool
     def selectTool(self):
         self.drawing_tool = "select"
+
     #set line as drawing tool
     def lineTool(self):
         self.drawing_tool = "line"
+
     #set Point as drawing tool
     def pointTool(self):
         self.drawing_tool = "point" 
 #drawing
     #point
-    def setPoint(self, event = None):
+    def setPoint(self, event=None):
         # if self.x_pos is not None and self.y_pos is not None:
         event.widget.create_oval(self.x1, self.y1, self.x1, self.y1, width=2, fill="green")
+        self.points.addPoint(self.x1, self.y1)
     #line
     def drawLine(self, event = None):
         if None not in (self.x1, self.y1, self.x2, self.y2):
             event.widget.create_oval(self.x1, self.y1, self.x1, self.y1, width=2, fill="blue")
             event.widget.create_line(self.x1, self.y1, self.x2, self.y2, smooth=TRUE, fill="blue")
             event.widget.create_oval(self.x2, self.y2, self.x2, self.y2, width=2, fill="blue")
+            # self.lines.addLine(self.x1, self.y1, self.x2, self.y2)
+
     #select nearest object object
-    def selectObject(self):
-        ...
+    def selectObject(self, event=None):
+        print(self.lines.getSetOfLines())
+        print(self.points.getSetOfPoints())
 
 if __name__ == "__main__":
     root = Tk()

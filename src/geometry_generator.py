@@ -16,13 +16,13 @@ class Point:
         self.x = x
         self.y = y
         if x is not None and y is not None:
-            self.points.append([x, y], )
+            self.points = [[x, y], ]
 
     def addPoint(self, x, y):
         self.points.append([x, y])
 
     def getSetOfPoints(self):
-        return self.points[-1]
+        return self.points
 
     def findPoint(self, x_pos, y_pos):
         for x, val in self.points:
@@ -40,7 +40,7 @@ class Line:
     lines = []
 
     def __init__(self, x1=None, y1=None, x2=None, y2=None):
-        if x1 is not None and x2 is not None:
+        if x1 is not None and x2 is not None and y1 is not None and y2 is not None:
             self.pointA = Point(x1, y1)
             self.pointB = Point(x2, y2)
             self.lines = [[self.pointA, self.pointB], ]

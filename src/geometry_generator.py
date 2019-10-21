@@ -22,7 +22,7 @@ class Point:
         self.points.append([x, y])
 
     def getSetOfPoints(self):
-        return self.points
+        return self.points[-1]
 
     def findPoint(self, x_pos, y_pos):
         for x, val in self.points:
@@ -39,14 +39,20 @@ class Point:
 class Line:
     lines = []
 
-    def __init__(self, x1, y1, x2, y2):
-        self.pointA = Point(x1, y1)
-        self.pointB = Point(x2, y2)
-        self.lines = [[self.pointA, self.pointB], ]
-    def addLine(self):
-        self.lines.append([self.pointA, self.pointB])
+    def __init__(self, x1=None, y1=None, x2=None, y2=None):
+        if x1 is not None and x2 is not None:
+            self.pointA = Point(x1, y1)
+            self.pointB = Point(x2, y2)
+            self.lines = [[self.pointA, self.pointB], ]
+
+    def addLine(self, x1, y1, x2, y2):
+        self.pointA.addPoint(x1, y1)
+        self.pointB.addPoint(x2, y2)
+        self.lines.append([self.pointA.getSetOfPoints(), self.pointB.getSetOfPoints()])
+
     def getSetOfLines(self):
         return self.lines
+
     def findLine(self, x1, y1, x2, y2):
         ...
 

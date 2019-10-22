@@ -1,6 +1,5 @@
 from tkinter import *
 from geometry_generator import *
-# from .geometrical_solver import *
 
 
 class MicroCADApp:
@@ -51,6 +50,9 @@ class MicroCADApp:
         self.x_pos = None
         self.y_pos = None
 
+        self.line = None
+        self.point = None
+        self.tag = str(event.x)+"+"+str(event.y)
         self.x2 = event.x
         self.y2 = event.y
 
@@ -89,21 +91,26 @@ class MicroCADApp:
 #drawing
     #point
     def setPoint(self, event=None):
-        # if self.x_pos is not None and self.y_pos is not None:
-        event.widget.create_oval(self.x1, self.y1, self.x1, self.y1, width=2, fill="green")
+        self.point = event.widget.create_oval(self.x1, self.y1, self.x1, self.y1,
+                                              width=2, fill="green", tags=self.tag)
         self.points.addPoint(self.x1, self.y1)
+
     #line
     def drawLine(self, event = None):
         if None not in (self.x1, self.y1, self.x2, self.y2):
-            event.widget.create_oval(self.x1, self.y1, self.x1, self.y1, width=2, fill="blue")
-            event.widget.create_line(self.x1, self.y1, self.x2, self.y2, smooth=TRUE, fill="blue")
-            event.widget.create_oval(self.x2, self.y2, self.x2, self.y2, width=2, fill="blue")
-            # self.lines.addLine(self.x1, self.y1, self.x2, self.y2)
+            self.line = event.widget.create_line(self.x1, self.y1, self.x2, self.y2,
+                                                 smooth=TRUE, fill="blue", tags=self.tag)
+        self.lines.addLine(self.x1, self.y1, self.x2, self.y2)
 
     #select nearest object object
     def selectObject(self, event=None):
+        event.widget.move(event.widget.find_closest(event.x, event.y, halo=None, start=None),
+                              event.x-self.x1, event.y-self.y1)
         print(self.lines.getSetOfLines())
         print(self.points.getSetOfPoints())
+
+
+
 
 if __name__ == "__main__":
     root = Tk()

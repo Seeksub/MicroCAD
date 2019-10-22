@@ -1,5 +1,5 @@
 #geometric constraint solver (GCS)
-class GCSolver():
+class GCSolver:
 
     #points
     def concidenceOfPoints(self, x1, y1, x2, y2):

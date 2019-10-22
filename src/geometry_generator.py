@@ -13,14 +13,14 @@ import math
 class Point:
     points = []
 
-    def __init__(self, x=None, y=None):
+    def __init__(self, pid=None, x=None, y=None):
         self.x = x
         self.y = y
         if x is not None and y is not None:
-            self.points = [[x, y], ]
+            self.points = [[pid, [x, y]], ]
 
-    def addPoint(self, x, y):
-        self.points.append([x, y])
+    def addPoint(self, pid, x, y):
+        self.points.append([pid, [x, y]])
 
     def getSetOfPoints(self):
         return self.points
@@ -45,14 +45,14 @@ class Point:
 class Line:
     lines = []
 
-    def __init__(self, x1=None, y1=None, x2=None, y2=None):
+    def __init__(self, lid=None, x1=None, y1=None, x2=None, y2=None):
         if x1 is not None and x2 is not None and y1 is not None and y2 is not None:
-            self.lines = [[x1, y1, x2, y2], ]
+            self.lines = [[lid, [x1, y1, x2, y2]], ]
 
-    def addLine(self, x1, y1, x2, y2):
+    def addLine(self, lid, x1, y1, x2, y2):
         # self.pointA.addPoint(x1, y1)
         # self.pointB.addPoint(x2, y2)
-        self.lines.append([x1, y1, x2, y2])
+        self.lines.append([lid, [x1, y1, x2, y2]])
 
     def getSetOfLines(self):
         return self.lines

@@ -1,6 +1,6 @@
 from tkinter import *
 from geometry_generator import *
-
+import math
 
 class MicroCADApp:
 #initialize
@@ -15,9 +15,9 @@ class MicroCADApp:
         tool_menu.add_command(label="line", command=self.lineTool)
         tool_menu.add_command(label="point", command=self.pointTool)
 
-        # geometrical costraint toolbox
+        # geometrical constraint toolbox
         solver_menu = Menu(main_menu, tearoff=0)
-        solver_menu.add_command(label="1")
+        solver_menu.add_command(label="1 - fix point", command=self.constraintTool)
         solver_menu.add_command(label="2")
         solver_menu.add_command(label="3")
         solver_menu.add_command(label="4")
@@ -37,7 +37,7 @@ class MicroCADApp:
 #define vars
     drawing_tool = "line"
     left_button_pressed = 0
-
+    constraint_tool = None
     x_pos, y_pos = None, None
     x1, y1, x2, y2 = None, None, None, None
     points = Point()
@@ -56,12 +56,15 @@ class MicroCADApp:
         self.x2 = event.x
         self.y2 = event.y
 
-        if self.drawing_tool == "line":
-            self.drawLine(event)
-        if self.drawing_tool == "point":
-            self.setPoint(event)
-        if self.drawing_tool == "select":
-            self.selectObject(event)
+        if self.constraint_tool is None:
+            if self.drawing_tool == "line":
+                self.drawLine(event)
+            if self.drawing_tool == "point":
+                self.setPoint(event)
+            if self.drawing_tool == "select":
+                self.selectObject(event)
+        if self.constraint_tool == 1:
+            self.setGeometryCoinstaraint(event)
     #catch down
     def left_button_down(self, event = None):
         self.left_button = 1
@@ -77,6 +80,7 @@ class MicroCADApp:
         #         self.x_pos = event.x
         #         self.y_pos = event.y
 #menu
+    #Main menu
     #set select as tool
     def selectTool(self):
         self.drawing_tool = "select"
@@ -87,7 +91,15 @@ class MicroCADApp:
 
     #set Point as drawing tool
     def pointTool(self):
-        self.drawing_tool = "point" 
+        self.drawing_tool = "point"
+
+    #Constraint menu
+    def constraintTool(self):
+        self.constraint_tool = 1
+
+    def resetConstraintTool(self):
+        self.constraint_tool = None
+
 #drawing
     #point
     def setPoint(self, event=None):
@@ -96,19 +108,64 @@ class MicroCADApp:
         self.points.addPoint(self.point, self.x1, self.y1)
 
     #line
-    def drawLine(self, event = None):
+    def drawLine(self, event=None):
         if None not in (self.x1, self.y1, self.x2, self.y2):
             self.line = event.widget.create_line(self.x1, self.y1, self.x2, self.y2,
                                                  smooth=TRUE, fill="blue", tags=self.tag)
-            # print(self.line)
+            print(self.line)
             self.lines.addLine(self.line, self.x1, self.y1, self.x2, self.y2)
 
-    #select nearest object object
+    #move nearest object object
     def selectObject(self, event=None):
-        event.widget.move(event.widget.find_closest(event.x, event.y, halo=None, start=None),
-                              event.x-self.x1, event.y-self.y1)
-        print(self.lines.getSetOfLines())
-        print(self.points.getSetOfPoints())
+        print(event.widget.find_closest(event.x, event.y, halo=None, start=None))
+        if self.lines.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
+            self.lines.printdata(event.widget.find_closest(event.x, event.y, halo=None, start=None))
+            line_constraint = self.lines.getLineConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None))
+            if line_constraint[1] == 1:
+                linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
+                event.widget.coords(event.widget.find_closest(event.x, event.y, halo=None, start=None), linecoords[1],
+                                linecoords[2], event.x, event.y)
+                self.lines.changeLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None), linecoords[1],
+                                linecoords[2], event.x, event.y)
+            if line_constraint[2] == 1:
+                linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
+                event.widget.coords(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x, event.y,
+                                    linecoords[3], linecoords[4])
+                self.lines.changeLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x, event.y,
+                                    linecoords[3], linecoords[4])
+            if line_constraint[1] == 0 and line_constraint[2] == 0:
+                linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
+                event.widget.move(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x - self.x1,
+                              event.y - self.y1)
+                dx = event.x - self.x1
+                dy = event.y - self.y1
+                self.lines.changeLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None), linecoords[1]-dx, linecoords[2]-dy,
+                                    linecoords[3]-dx, linecoords[4]-dy)
+        if self.points.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
+            point_constraint = self.points.getPointConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None))
+            if point_constraint[1] == 0:
+                event.widget.move(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x - self.x1,
+                                  event.y - self.y1)
+                self.points.changePointCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x - self.x1,
+                                              event.y - self.y1)
+
+    #fix point of object
+    def setGeometryCoinstaraint(self, event=None):
+        if self.lines.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
+            linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
+            if math.sqrt(math.fabs(linecoords[1]**2-event.x**2) + math.fabs(linecoords[2]**2 - event.y**2)) < math.sqrt(math.fabs(linecoords[3]**2-event.x**2) + math.fabs(linecoords[4]**2 - event.y**2)):
+                self.lines.addLineConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None), 1)
+                print("fix x1 y1")
+            else:
+                self.lines.addLineConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None), 2)
+                print("fix x2 y2")
+        if self.points.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
+            self.points.addPointConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None), 1)
+            print("fix x y")
+        self.resetConstraintTool()
+
+        # print(self.lines.getSetOfLines())
+        # print(self.points.getSetOfPoints())
         # print(event.widget.find_closest(event.x, event.y, halo=None, start=None))
 
 

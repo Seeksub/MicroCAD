@@ -28,7 +28,7 @@ class Point:
 
     def changePointCoords(self, point, x, y):
         for i, x in enumerate(self.points):
-            if x[0] == point[0]:
+            if x[0] == point:
                 self.points[i][1] = x
                 self.points[i][2] = y
 
@@ -78,7 +78,7 @@ class Line:
 
     def changeLineCoords(self, line, x1, y1, x2, y2):
         for i, x in enumerate(self.lines):
-            if x[0] == line[0] or x[5] == line[0] or x[6] == line[0]:
+            if x[0] == line or x[5] == line or x[6] == line:
                 self.lines[i][1] = x1
                 self.lines[i][2] = y1
                 self.lines[i][3] = x2
@@ -102,6 +102,15 @@ class Line:
             if x[0] == lid:
                 self.geometry_constraint[i][constraint] = 1
                 self.object_constraint.append([line, constraint])
+
+    def unsetLineConstraint(self, line, constraint):
+        for i, x in enumerate(self.geometry_constraint):
+            if x[0] == line:
+                self.geometry_constraint[i][constraint] = 0
+        for i, x in enumerate(self.object_constraint):
+            if x[0] == line and x[1] == constraint:
+                del(self.object_constraint[i])
+
 
     def isEventObject(self, line):
         for x in self.lines:

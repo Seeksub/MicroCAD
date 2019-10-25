@@ -9,7 +9,8 @@ class MicroCADApp:
         work_area = Canvas(root, width=1000, height=700)
         main_menu = Menu(root)
         root.config(menu=main_menu)
-        
+
+        #tools toolbox
         tool_menu = Menu(main_menu, tearoff=0)
         tool_menu.add_command(label="select", command=self.selectTool)
         tool_menu.add_command(label="line", command=self.lineTool)
@@ -17,23 +18,27 @@ class MicroCADApp:
 
         # geometrical constraint toolbox
         solver_menu = Menu(main_menu, tearoff=0)
-        solver_menu.add_command(label="1 - fix point", command=self.constraintTool)
-        solver_menu.add_command(label="2")
-        solver_menu.add_command(label="3")
-        solver_menu.add_command(label="4")
-        solver_menu.add_command(label="5")
-        solver_menu.add_command(label="6")
-        solver_menu.add_command(label="7")
-        solver_menu.add_command(label="8")
+        solver_menu.add_command(label="1 - fixed point", command=self.constraintTool)
+        solver_menu.add_command(label="2 - fixed distance")
+        solver_menu.add_command(label="3 - parallelism")
+        solver_menu.add_command(label="4 - perpendicularity")
+        solver_menu.add_command(label="5 - fixed angle")
+        solver_menu.add_command(label="6 - horizontal")
+        solver_menu.add_command(label="7 - vertical")
+        solver_menu.add_command(label="8 - attaching point to the line")
 
+        #toolbox
         main_menu.add_cascade(label="drawing tool", menu=tool_menu)
-        main_menu.add_cascade(label="graphical constrant", menu=solver_menu)
+        main_menu.add_cascade(label="graphical constraint", menu=solver_menu)
 
-        work_area.pack()
+        # self.popup_menu = Menu(main_menu, tearoff=0)
+        # self.popup_menu.add_command(label="delete", command=self.deleteSelected)
+        # popup_menu.add_command(label="delete all", command=self.deleteAll)
         # work_area.bind("<Motion>", self.motion)
+        # work_area.bind("<ButtonPress-3", self.popup)
         work_area.bind("<ButtonPress-1>", self.left_button_down)
         work_area.bind("<ButtonRelease-1>", self.left_button_up)
-
+        work_area.pack()
 #define vars
     drawing_tool = "line"
     left_button_pressed = 0
@@ -79,6 +84,19 @@ class MicroCADApp:
         #             event.widget.create_line(self.x_pos, self.y_pos, event.x, event.y, smooth = TRUE)
         #         self.x_pos = event.x
         #         self.y_pos = event.y
+    #delete
+    # def popup(self, event):
+    #     try:
+    #         self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
+    #     finally:
+    #         self.popup_menu.grab_release()
+    #
+    # def deleteSelected(self, event):
+    #     obj = event.widget.find_closest(event.x, event.y, halo=None, start=None)
+    #     if self.lines.isEventObject(obj):
+    #         self.lines.deleteLine(obj)
+    #     if self.points.isEventObject(obj):
+    #         self.points.deletePoint(obj)
 #menu
     #Main menu
     #set select as tool
@@ -95,7 +113,10 @@ class MicroCADApp:
 
     #Constraint menu
     def constraintTool(self):
-        self.constraint_tool = 1
+        if self.constraint_tool == 1:
+            self.resetConstraintTool()
+        else:
+            self.constraint_tool = 1
 
     def resetConstraintTool(self):
         self.constraint_tool = None
@@ -137,10 +158,10 @@ class MicroCADApp:
                 linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
                 event.widget.move(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x - self.x1,
                               event.y - self.y1)
-                dx = event.x - self.x1
-                dy = event.y - self.y1
-                self.lines.changeLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None), linecoords[1]-dx, linecoords[2]-dy,
-                                    linecoords[3]-dx, linecoords[4]-dy)
+                dx = math.fabs(event.x - self.x1)
+                dy = math.fabs(event.y - self.y1)
+                self.lines.changeLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None),
+                                            linecoords[1]-dx, linecoords[2]-dy, linecoords[3]-dx, linecoords[4]-dy)
         if self.points.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
             point_constraint = self.points.getPointConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None))
             if point_constraint[1] == 0:
@@ -153,7 +174,8 @@ class MicroCADApp:
     def setGeometryCoinstaraint(self, event=None):
         if self.lines.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
             linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
-            if math.sqrt(math.fabs(linecoords[1]**2-event.x**2) + math.fabs(linecoords[2]**2 - event.y**2)) < math.sqrt(math.fabs(linecoords[3]**2-event.x**2) + math.fabs(linecoords[4]**2 - event.y**2)):
+            if math.sqrt(math.fabs(linecoords[1]**2-event.x**2) + math.fabs(linecoords[2]**2 - event.y**2)) \
+                    < math.sqrt(math.fabs(linecoords[3]**2-event.x**2) + math.fabs(linecoords[4]**2 - event.y**2)):
                 self.lines.addLineConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None), 1)
                 print("fix x1 y1")
             else:
@@ -162,7 +184,6 @@ class MicroCADApp:
         if self.points.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
             self.points.addPointConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None), 1)
             print("fix x y")
-        self.resetConstraintTool()
 
         # print(self.lines.getSetOfLines())
         # print(self.points.getSetOfPoints())

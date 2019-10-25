@@ -1,15 +1,6 @@
 # from .geometrical_solver import *
 #object structures
 
-# class Object():
-#     def __init__(self, obj):
-#         self.obj_set = [obj,]
-#     def addToSet(self, obj):
-#         self.obj_set.append(obj)
-#
-#     ...
-import math
-
 class Point:
     points = []
     geometry_constraint = []

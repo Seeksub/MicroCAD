@@ -124,15 +124,15 @@ class MicroCADApp:
 #drawing
     #point
     def setPoint(self, event=None):
-        self.point = event.widget.create_oval(self.x1, self.y1, self.x1, self.y1,
-                                              width=2, fill="green", tags=self.tag)
+        self.point = event.widget.create_oval(self.x1, self.y1, self.x1+7, self.y1+7,
+                                              width=1, fill="red", tags=self.tag)
         self.points.addPoint(self.point, self.x1, self.y1)
 
     #line
     def drawLine(self, event=None):
         if None not in (self.x1, self.y1, self.x2, self.y2):
             self.line = event.widget.create_line(self.x1, self.y1, self.x2, self.y2,
-                                                 smooth=TRUE, fill="blue", tags=self.tag)
+                                                 smooth=TRUE, width=3, fill="blue", tags=self.tag)
             print(self.line)
             self.lines.addLine(self.line, self.x1, self.y1, self.x2, self.y2)
 
@@ -142,19 +142,20 @@ class MicroCADApp:
         if self.lines.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
             self.lines.printdata(event.widget.find_closest(event.x, event.y, halo=None, start=None))
             line_constraint = self.lines.getLineConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None))
-            if line_constraint[1] == 1:
+            if line_constraint[1] == 1 and line_constraint[2] == 0:
                 linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
                 event.widget.coords(event.widget.find_closest(event.x, event.y, halo=None, start=None), linecoords[1],
                                 linecoords[2], event.x, event.y)
                 self.lines.changeLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None), linecoords[1],
                                 linecoords[2], event.x, event.y)
-            if line_constraint[2] == 1:
+            if line_constraint[2] == 1 and line_constraint[1] == 0:
                 linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
                 event.widget.coords(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x, event.y,
                                     linecoords[3], linecoords[4])
                 self.lines.changeLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x, event.y,
                                     linecoords[3], linecoords[4])
             if line_constraint[1] == 0 and line_constraint[2] == 0:
+                print("breakpoint", line_constraint)
                 linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
                 event.widget.move(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x - self.x1,
                               event.y - self.y1)

@@ -22,8 +22,9 @@ class Point:
 
     def deletePoint(self, point):
         for i, x in enumerate(self.points):
-            if x[0] == point[0]:
+            if x[0] == point:
                 del(self.points[i])
+                del (self.geometry_constraint[i])
 
     def changePointCoords(self, point, x, y):
         for i, x in enumerate(self.points):
@@ -66,7 +67,7 @@ class Line:
 
     def deleteLine(self, line):
         for i, x in enumerate(self.lines):
-            if x[0] == line[0]:
+            if x[0] == line:
                 del(self.lines[i])
                 del(self.geometry_constraint[i])
 

@@ -27,10 +27,14 @@ class MicroCADApp:
         solver_menu.add_command(label="7 - vertical")
         solver_menu.add_command(label="8 - attaching point to the line")
 
+        # undobox
+        undo_box = Menu(main_menu, tearoff=0)
+        undo_box.add_command(label="Clear workspace", command=self.deleteTool)
+        undo_box.add_command(label="Unset boundary", command=self.unsetTool)
         #toolbox
         main_menu.add_cascade(label="drawing tool", menu=tool_menu)
         main_menu.add_cascade(label="graphical constraint", menu=solver_menu)
-
+        main_menu.add_cascade(label="reset", menu=undo_box)
         # self.popup_menu = Menu(main_menu, tearoff=0)
         # self.popup_menu.add_command(label="delete", command=self.deleteSelected)
         # popup_menu.add_command(label="delete all", command=self.deleteAll)
@@ -68,6 +72,10 @@ class MicroCADApp:
                 self.setPoint(event)
             if self.drawing_tool == "select":
                 self.selectObject(event)
+            if self.drawing_tool == "delete":
+                self.deleteAll(event)
+            if self.drawing_tool == "unset":
+                ...
         if self.constraint_tool == 1:
             self.setGeometryCoinstaraint(event)
     #catch down
@@ -97,6 +105,19 @@ class MicroCADApp:
     #         self.lines.deleteLine(obj)
     #     if self.points.isEventObject(obj):
     #         self.points.deletePoint(obj)
+
+    def deleteAll(self, event):
+        lids = self.lines.getSetOfLines()
+        pids = self.points.getSetOfPoints()
+        for l in lids:
+            event.widget.delete(l[0])
+            event.widget.delete(l[5])
+            event.widget.delete(l[6])
+            self.lines.deleteLine(l[0])
+        for p in pids:
+            event.widget.delete(p[0])
+            self.points.deletePoint(p[0])
+
 #menu
     #Main menu
     #set select as tool
@@ -121,6 +142,13 @@ class MicroCADApp:
     def resetConstraintTool(self):
         self.constraint_tool = None
 
+    #undomenu
+    def deleteTool(self):
+        self.drawing_tool = "delete"
+
+    def unsetTool(self):
+        self.drawing_tool = "unset"
+
 #drawing
     #point
     def setPoint(self, event=None):
@@ -140,7 +168,7 @@ class MicroCADApp:
                                                   width=1, fill="yellow", tags=self.tag, activefill="green")
             self.lines.addLine(self.line, self.x1, self.y1, self.x2, self.y2, point1, point2)
 
-    #move nearest object object
+    #move nearest object
     def selectObject(self, event=None):
         print(event.widget.find_closest(event.x, event.y, halo=None, start=None))
         if self.lines.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
@@ -180,6 +208,7 @@ class MicroCADApp:
                 self.points.changePointCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None), event.x - self.x1,
                                               event.y - self.y1)
 
+#boundary
     #fix point of object
     def setGeometryCoinstaraint(self, event=None):
         if self.lines.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
@@ -193,7 +222,8 @@ class MicroCADApp:
         if self.points.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
             self.points.addPointConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None), 1)
             print("fix x y")
-
+    def unsetBoundary(self):
+        ...
         # print(self.lines.getSetOfLines())
         # print(self.points.getSetOfPoints())
         # print(event.widget.find_closest(event.x, event.y, halo=None, start=None))

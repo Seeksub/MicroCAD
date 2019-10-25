@@ -1,9 +1,11 @@
 # from .geometrical_solver import *
 #object structures
 
+
 class Point:
     points = []
     geometry_constraint = []
+    object_constraint = []#check same var for Line class
 
     def __init__(self, pid=None, x=None, y=None):
         self.x = x
@@ -37,6 +39,7 @@ class Point:
         for i, x in enumerate(self.geometry_constraint):
             if x[0] == point[0]:
                 self.geometry_constraint[i][constraint] = 1
+                self.object_constraint.append([point, constraint])
 
     def isEventObject(self, point):
         for x in self.points:
@@ -88,6 +91,7 @@ class Line:
         for i, x in enumerate(self.geometry_constraint):
             if x[0] == line[0]:
                 self.geometry_constraint[i][constraint] = 1
+                self.object_constraint.append([line, constraint])
 
     def isEventObject(self, line):
         for x in self.lines:

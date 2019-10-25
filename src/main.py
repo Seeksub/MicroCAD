@@ -125,14 +125,14 @@ class MicroCADApp:
     #point
     def setPoint(self, event=None):
         self.point = event.widget.create_oval(self.x1, self.y1, self.x1+7, self.y1+7,
-                                              width=1, fill="red", tags=self.tag)
+                                              width=1, fill="red", tags=self.tag, activefill="pink")
         self.points.addPoint(self.point, self.x1, self.y1)
 
     #line
     def drawLine(self, event=None):
         if None not in (self.x1, self.y1, self.x2, self.y2):
             self.line = event.widget.create_line(self.x1, self.y1, self.x2, self.y2,
-                                                 smooth=TRUE, width=3, fill="blue", tags=self.tag)
+                                                 smooth=TRUE, width=3, fill="black", tags=self.tag, activefill="blue")
             print(self.line)
             self.lines.addLine(self.line, self.x1, self.y1, self.x2, self.y2)
 

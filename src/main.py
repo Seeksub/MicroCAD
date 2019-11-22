@@ -43,6 +43,8 @@ class MicroCADApp:
         # work_area.bind("<ButtonPress-3", self.popup)
         work_area.bind("<ButtonPress-1>", self.left_button_down)
         work_area.bind("<ButtonRelease-1>", self.left_button_up)
+        # work_area.bind("<ButtonPress-3>", self.onPress)
+        # work_area.bind("<ButtonRelease-3>", self.onRelease)
         work_area.pack()
 #define vars
     drawing_tool = "line"
@@ -52,7 +54,8 @@ class MicroCADApp:
     x1, y1, x2, y2 = None, None, None, None
     points = Point()
     lines = Line()
-#mouse events
+    trigger = True
+#mouse btn 1 events
     #catch up
     def left_button_up(self, event = None):
         # self.left_button = 0
@@ -90,7 +93,8 @@ class MicroCADApp:
 
         self.x1 = event.x
         self.y1 = event.y
-    
+        # if self.drawing_tool == "select":
+        #     self.selectObject(event)
     #catch move
         # def motion(self, event = None):
         #     if self.left_button == "down":
@@ -106,7 +110,6 @@ class MicroCADApp:
     #         self.lines.deleteLine(obj)
     #     if self.points.isEventObject(obj):
     #         self.points.deletePoint(obj)
-
     def deleteAll(self, event):
         lids = self.lines.getSetOfLines()
         pids = self.points.getSetOfPoints()
@@ -118,7 +121,24 @@ class MicroCADApp:
         for p in pids:
             event.widget.delete(p[0])
             self.points.deletePoint(p[0])
+#mouse btn 3 events
+    def onPress(self, event=None):
+        self.trigger = True
+        self.x1 = event.x
+        self.y1 = event.y
+        self.onMove()
 
+    def onRelease(self, event=None):
+        self.trigger = False
+        self.x2 = event.x
+        self.y2 = event.y
+
+    def onMove(self, event=None):
+        if self.trigger:
+            ...
+
+        self.x_pos = event.x
+        self.y_pos = event.y
 #menu
     #Main menu
     #set select as tool
@@ -189,24 +209,33 @@ class MicroCADApp:
                 self.lines.changeLineCoords(linecoords[0], event.x, event.y, linecoords[3], linecoords[4])
             if line_constraint[1] == 0 and line_constraint[2] == 0:
                 linecoords = self.lines.getLineCoords(event.widget.find_closest(event.x, event.y, halo=None, start=None))
-                #this thing is must to have but those ifs don't work:/
-                # if linecoords[5] == event.widget.find_closest(event.x, event.y, halo=None, start=None)[0]:
-                #     event.widget.coords(linecoords[0], linecoords[1], linecoords[2], event.x, event.y)
-                #     event.widget.coords(linecoords[5], linecoords[1] - 4, linecoords[2] - 4, linecoords[1] + 4, linecoords[2] + 4)
-                #     event.widget.coords(linecoords[6], event.x - 4, event.y - 4, event.x + 4, event.y + 4)
-                #     self.lines.changeLineCoords(linecoords[0], linecoords[1], linecoords[2], event.x, event.y)
-                # if linecoords[6] == event.widget.find_closest(event.x, event.y, halo=None, start=None)[0]:
-                #     event.widget.coords(linecoords[0], event.x, event.y, linecoords[3], linecoords[4])
-                #     event.widget.coords(linecoords[5], event.x - 4, event.y - 4, event.x + 4, event.y + 4)
-                #     event.widget.coords(linecoords[6], linecoords[3] - 4, linecoords[4] - 4, linecoords[3] + 4, linecoords[4] + 4)
-                #     self.lines.changeLineCoords(linecoords[0], event.x, event.y, linecoords[3], linecoords[4])
-                # else:
-                event.widget.move(linecoords[0], event.x - self.x1,event.y - self.y1)
-                event.widget.move(linecoords[5], event.x - self.x1, event.y - self.y1)
-                event.widget.move(linecoords[6], event.x - self.x1, event.y - self.y1)
-                dx = math.fabs(event.x - self.x1)
-                dy = math.fabs(event.y - self.y1)
-                self.lines.changeLineCoords(linecoords[0], linecoords[1]-dx, linecoords[2]-dy, linecoords[3]-dx, linecoords[4]-dy)
+                # this thing is must to have but those ifs don't work:/
+                if linecoords[5] in event.widget.find_overlapping(event.x-3, event.y+3, event.x+3, event.y-3):
+                    event.widget.coords(linecoords[0], linecoords[1], linecoords[2], event.x, event.y)
+                    event.widget.coords(linecoords[5], linecoords[1] - 4, linecoords[2] - 4, linecoords[1] + 4, linecoords[2] + 4)
+                    event.widget.coords(linecoords[6], event.x - 4, event.y - 4, event.x + 4, event.y + 4)
+                    self.lines.changeLineCoords(linecoords[0], linecoords[1], linecoords[2], event.x, event.y)
+                    print("point1")
+                    print(linecoords[5])
+                if linecoords[6] in event.widget.find_overlapping(event.x-3, event.y+3, event.x+3, event.y-3):
+                    event.widget.coords(linecoords[0], event.x, event.y, linecoords[3], linecoords[4])
+                    event.widget.coords(linecoords[5], event.x - 4, event.y - 4, event.x + 4, event.y + 4)
+                    event.widget.coords(linecoords[6], linecoords[3] - 4, linecoords[4] - 4, linecoords[3] + 4, linecoords[4] + 4)
+                    self.lines.changeLineCoords(linecoords[0], event.x, event.y, linecoords[3], linecoords[4])
+                    print("point2")
+                    print(linecoords[6])
+                    #find_ovelap
+                else:
+                    print("line")
+                    print(linecoords[1], linecoords[2])
+                    print(event.x, event.y)
+                    print(event.widget.find_overlapping(event.x-5, event.y+5, event.x+5, event.y-5))
+                    event.widget.move(linecoords[0], event.x - self.x1,event.y - self.y1)
+                    event.widget.move(linecoords[5], event.x - self.x1, event.y - self.y1)
+                    event.widget.move(linecoords[6], event.x - self.x1, event.y - self.y1)
+                    dx = math.fabs(event.x - self.x1)
+                    dy = math.fabs(event.y - self.y1)
+                    self.lines.changeLineCoords(linecoords[0], linecoords[1]-dx, linecoords[2]-dy, linecoords[3]-dx, linecoords[4]-dy)
         if self.points.isEventObject(event.widget.find_closest(event.x, event.y, halo=None, start=None)):
             point_constraint = self.points.getPointConstraint(event.widget.find_closest(event.x, event.y, halo=None, start=None))
             if point_constraint[1] == 0:

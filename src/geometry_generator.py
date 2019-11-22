@@ -51,7 +51,7 @@ class Point:
 class Line:
     lines = []
     geometry_constraint = []#index1-fixed start point, index2- fixed end point, index3-parallelism
-    object_constraint = []#[[lid,constaint_index], ]
+    object_constraint = []  #[[obj_id1,obj_id2, constaint_index], ]
 
     def __init__(self, lid=None, x1=None, y1=None, x2=None, y2=None, pid1=None, pid2=None):
         if x1 is not None and x2 is not None and y1 is not None and y2 is not None:
